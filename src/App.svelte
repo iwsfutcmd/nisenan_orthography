@@ -1,13 +1,15 @@
 <script lang="ts">
-  let baseWords: string[] = [
-    "Nisenaan",
-    "'bysep’yyk’'",
+  import { text } from "svelte/internal";
+  import { slide, fly } from "svelte/transition";
+
+  const baseWords: string[] = [
+    "Nišenaan",
+    "bysep’yyk’",
     "cëëwmukum",
-`"Nik myymaadi de sawisma!" 
+    `"Nik myymaadi de sawisma!" 
 "Otanbodi de sawisma!"
 "Nik myymaadi de sawisma!"
-"Otanbodi de sawisma!"
-`,
+"Otanbodi de sawisma!"`,
     `K’ut’im pitcaak’am ham lajim peenim haj uk’ojmukum jamanna pittaatak’a pak’oji. Han haj k’ut’im pitcaak’am ba toojeen myji pamukum. Hace haj k’ut’im pitcaak’ak ba cëëwmukum. Hace haj pitcaak’am woomukum. Han haj woon ek’ojusan emukum sa tajim k’awna. Han haj 
 "Nik myymaadi de sawisma!" 
 "Otanbodi de sawisma!"
@@ -15,6 +17,8 @@
 "Otanbodi de sawisma!"
 Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut’im myjna etan emukum sa. Han haj kaanteem wak’a heet’amukum. Hace haj kaanteem wak’am uk’ojsyn k’aamukum sa meek’ojsyn. Han haj kapam hadykym k’utonim nek kyymukum. Hace haj lismo s woojok’ojmukum. Hace haj lisnom uk’ojin mym sa loomukum. Han haj toojeemukum. Han haj dappe emukum. Hace haj dappem "homaa be, ty?" han "Aj, nik’i paanim my!" hamukum. "Maat’im!" hamukum. "Oo, mej nik, ty!" "Pa macak’ii ni!" "Ok’om dani!" "Oo, nik’i pajjom hesupajim my!" "Oo, mej nik, ty!" "Myji dani aanik’i!" Hace haj "Oo, sam my!" "Oo, mej nik, ty!" "Mym sa dani aanik’i!" Han haj... umm... he got mad... Han haj mym sani wo’opajmukum. Hace haj hedem k’awim samukum. Dappem t’aanon woonomukum`,
   ];
+
+  let customText = "Nisenaan";
 
   type OrthographyOption = [
     Array<string | RegExp>,
@@ -27,88 +31,122 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
       "ṕ": ["ṕ", "Ṕ"],
       "ᵽ": ["ᵽ", "Ᵽ"],
       "ƥ": ["ƥ", "Ƥ"],
+      "ṗ": ["ṗ", "Ṗ"],
+
     }],
     "t’": [["t’", "T’"], {
       "t́": ["t́", "T́"],
       "ŧ": ["ŧ", "Ŧ"],
       "ƭ": ["ƭ", "Ƭ"],
+      "ṭ": ["ṭ", "Ṭ"]
     }],
     "k’": [["k’", "K’"], {
       "ḱ": ["ḱ", "Ḱ"],
       "ꝁ": ["ꝁ", "Ꝁ"],
       "ƙ": ["ƙ", "Ƙ"],
+      "ḳ": ["ḳ", "Ḳ"],
     }],
-    "y": [["y"], {
-      "ʉ": ["ʉ"]
+    "c": [["c", "C"], {
+      "ts": ["ts", "Ts"]
     }],
-    "c": [["c"], {
-      "ts": ["ts"]
+    "c’": [["c’", "C’"], {
+      "ć": ["ć", "Ć"],
+      "ꞓ": ["ꞓ", "Ꞓ"],
+      "ƈ": ["ƈ", "Ƈ"],
+      "c̣": ["c̣", "C̣"],
+      "ts’": ["ts’", "Ts’"]
     }],
-    "b": [["b"], {
-      "ƀ": ["ƀ"],
-      "ɓ": ["ɓ"],
+    "y": [["y", "Y"], {
+      "ʉ": ["ʉ", "Ʉ"]
     }],
-    "d": [["d"], {
-      "đ": ["đ"],
-      "ɗ": ["ɗ"],
+    "b": [["b", "B"], {
+      "ƀ": ["ƀ", "Ƀ"],
+      "ɓ": ["ɓ", "Ɓ"],
     }],
-    "j": [["j"], {
-      "y": ["y"]
+    "d": [["d", "D"], {
+      "đ": ["đ", "Đ"],
+      "ɗ": ["ɗ", "Ɗ"],
     }],
-    "ë": [["ë"], {
-      "ə": ["ə"]
+    "j": [["j", "J"], {
+      "y": ["y", "Y"]
+    }],
+    "ë": [["ë", "Ë"], {
+      "ə": ["ə", "Ə"]
     }],
     "’": [[/(?<![ptkPTK])’/g], {
       "ʔ": ["ʔ"]
     }],
-    "aa": [[/([aeiouyë]){2}/g], {
+    "aa": [[/([aeiouyë]){2}/ig], {
       "aː": ["$1ː"]
+    }],
+    "š": [["š", "Š"], {
+      "sh": ["sh", "Sh"],
+      "ś": ["ś", "Ś"],
+      "ş": ["ş", "Ş"],
+      "ŝ": ["ŝ", "Ŝ"],
+      "ꟊ": ["ꟊ", "Ꟊ"],
+      "ꞩ": ["ꞩ", "Ꞩ"],
     }]
   };
 
-  const keyOrder = ["aa", "p’", "t’", "k’", "y", "c", "b", "d", "j", "ë", "’"];
+  const keyOrder = [
+    "aa",
+    "’",
+    "p’",
+    "t’",
+    "k’",
+    "c",
+    "c’",
+    "b",
+    "d",
+    "š",
+    "j",
+    "ë",
+    "y",
+  ];
+
+  const complexKeys = ["p’", "t’", "k’", "c’", "š", "ë", "’"];
 
   const fonts = [
     "Noto Sans",
     "Noto Serif",
     "Noto Sans Display",
     "Noto Serif Display",
-    "Arial"
+    "Arial",
+    "Times New Roman",
   ];
 
-  // const orthographyOptions: Array<[string | RegExp, string[]]> = [
-  //   ["p’", ["ṕ", "ᵽ", "ƥ"]],
-  //   ["t’", ["t́", "ŧ", "ƭ"]],
-  //   ["k’", ["ḱ", "ꝁ", "ƙ"]],
-  //   ["y", ["ʉ"]],
-  //   ["c", ["ts"]],
-  //   ["b", ["ƀ", "ɓ"]],
-  //   ["d", ["đ", "ɗ"]],
-  //   ["j", ["y"]],
-  //   ["ë", ["ə"]],
-  //   [/([aeiouyë]){2}/g, ["$1ː"]],
-  //   // ["’", ["ʔ"]],
-  // ];
-  // let currentOrthography: Array<[string | RegExp, string]> =
-  //   orthographyOptions.map(([key, _]) => [key, null]);
+  const fontDefaults = {
+    size: 12,
+    weight: 400,
+    width: 100,
+    contrast: 0,
+    italic: false,
+    underline: false,
+    smallCaps: false,
+  };
+  let fontSize: number;
+  let fontWeight: number;
+  let fontWidth: number;
+  let fontContrast: number;
+  let fontItalic: boolean;
+  let fontUnderline: boolean;
+  let fontSmallCaps: boolean;
 
+  const resetFontOptions = () => {
+    fontSize = fontDefaults.size;
+    fontWeight = fontDefaults.weight;
+    fontWidth = fontDefaults.width;
+    fontContrast = fontDefaults.contrast;
+    fontItalic = fontDefaults.italic;
+    fontUnderline = fontDefaults.underline;
+    fontSmallCaps = fontDefaults.smallCaps;
+  };
+  resetFontOptions();
   let currentOrthography: Array<[string, string]> = keyOrder.map((key) => [
     key,
     null,
   ]);
-
-  // const transliterate = (
-  //   baseWords: string[],
-  //   currentOrthography: Array<[string | RegExp, string]>
-  // ) =>
-  //   baseWords.map((baseWord) => {
-  //     [...currentOrthography]
-  //       .sort((a, b) => b[0].toString().length - a[0].toString().length)
-  //       .forEach(([k, v]) => {
-  //         if (v) baseWord = baseWord.replaceAll(k, v);
-  //       });
-  //     return baseWord;
-  //   });
 
   const transliterate = (
     baseWords: string[],
@@ -128,83 +166,137 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
     });
 
   let result: string[] = [];
-  let fontSize = 12;
-  let fontWeight = 400;
-  let fontWidth = 100;
-  let fontContrast = 0;
+
+  let menusOpen: string[] = [];
+
+  const toggleMenu = (option: string) => {
+    menusOpen = menusOpen.includes(option) ? [] : [option];
+  };
+
+  let shiftPressed = false;
 
   $: {
-    // result = transliterate(baseWords, currentOrthography);
-    result = transliterate(baseWords, currentOrthography);
+    result = transliterate([customText, ...baseWords], currentOrthography);
   }
 </script>
 
+<svelte:window on:keydown={e => {if (e.key === "Shift") shiftPressed = true}} on:keyup={e => {if (e.key === "Shift") shiftPressed = false}}/>
+
 <main>
-  <div id="orthography-options" class="sans">
-    {#each keyOrder as inputKey, i}
-      <form>
-        <label
-          ><input
-            type="radio"
-            bind:group={currentOrthography[i][1]}
-            name={inputKey}
-            value={null}
-            checked
-          />{inputKey}</label
-        >
-        {#each Object.keys(orthographyOptions[inputKey][1]) as outputKey}
-          <label
-            ><input
+  <div id="options-bar">
+    <div id="options-buttons">
+      <button on:click={() => toggleMenu("orthography")}>
+        Orthography Options
+      </button>
+      <button on:click={() => toggleMenu("customText")}> Custom Text </button>
+      <button on:click={() => toggleMenu("font")}> Font Options </button>
+    </div>
+    {#if menusOpen.includes("orthography")}
+      <div transition:slide class="options">
+        {#each keyOrder as inputKey, i}
+          <form class="orthography-option">
+            <input
               type="radio"
               bind:group={currentOrthography[i][1]}
               name={inputKey}
-              value={outputKey}
-            />{outputKey}</label
-          >
+              id={inputKey + "-" + inputKey}
+              value={null}
+              checked
+            />
+            <label for={inputKey + "-" + inputKey}>{inputKey}</label>
+            {#each Object.keys(orthographyOptions[inputKey][1]) as outputKey}
+              <input
+                type="radio"
+                bind:group={currentOrthography[i][1]}
+                name={inputKey}
+                id={inputKey + "-" + outputKey}
+                value={outputKey}
+              />
+              <label for={inputKey + "-" + outputKey}>{outputKey}</label>
+            {/each}
+          </form>
         {/each}
-      </form>
-      <hr />
-    {/each}
-    <label
-      >Font Size: {fontSize}<input type="range" bind:value={fontSize} /></label
-    >
-    <label>
-      Font Weight: {fontWeight}
-      <input type="range" bind:value={fontWeight} min="100" max="900" />
-    </label>
-    <label>
-      Font Width: {fontWidth}
-      <input type="range" bind:value={fontWidth} min="62.5" max="100" />
-    </label>
-    <label>
-      Font Contrast: {fontContrast}
-      <input type="range" bind:value={fontContrast} min="0" max="100" />
-    </label>
+      </div>
+    {/if}
+    {#if menusOpen.includes("customText")}
+      <div transition:slide id="custom-text">
+        <textarea id="custom-text-area" bind:value={customText} />
+        <div>
+          {#each complexKeys as key}
+            <button on:click={() => {customText = customText + (shiftPressed ? key.toUpperCase() : key); document.getElementById("custom-text-area").focus()}}>
+              {shiftPressed ? key.toUpperCase() : key}
+            </button>
+            {/each}
+        </div>
+      </div>
+    {/if}
+    {#if menusOpen.includes("font")}
+      <div transition:slide class="options" id="font-options">
+        <form class="font-options">
+          <label>
+            Font Size: {fontSize}
+            <input type="range" bind:value={fontSize} />
+          </label>
+          <label>
+            Font Weight: {fontWeight}
+            <input type="range" bind:value={fontWeight} min="100" max="900" />
+          </label>
+          <label>
+            Font Width: {fontWidth}
+            <input
+              type="range"
+              bind:value={fontWidth}
+              min="62.5"
+              max="100"
+              step="0.5"
+            />
+          </label>
+          <label>
+            Font Contrast: {fontContrast}
+            <input type="range" bind:value={fontContrast} min="0" max="100" />
+          </label>
+          <label style="flex-direction: row;">
+            <input type="checkbox" bind:checked={fontItalic} />
+            Italic
+          </label>
+          <label style="flex-direction: row;">
+            <input type="checkbox" bind:checked={fontUnderline} />
+            Underline
+          </label>
+          <label style="flex-direction: row;">
+            <input type="checkbox" bind:checked={fontSmallCaps} />
+            Small Caps
+          </label>
+        </form>
+        <button on:click={resetFontOptions}>Reset</button>
+      </div>
+    {/if}
   </div>
-  {#each fonts as font}
-    <div
-      class="results"
-      style="
-      font-family: '{font}', 'Last Resort'; 
-      font-size: {fontSize}pt; 
-      font-variation-settings: 'wght' {fontWeight}, 'wdth' {fontWidth}, 'CTGR' {fontContrast};
-      "
-    >
-      {#each result as output}
-        <div>{output}</div>
-        <hr />
-      {/each}
-    </div>
-  {/each}
-  <!-- <div>
-    {#each currentOrthography2 as [fromO, toO]}
-      <h2>{fromO}: {toO}</h2>
+  <div id="output" on:click={() => (menusOpen = [])}>
+    {#each fonts as font}
+      <details class="results" style:font-family="'{font}', 'Last Resort'" open>
+        <summary>{font}</summary>
+        <div
+          style:font-size="{fontSize}pt"
+          style:font-variation-settings="'wght' {fontWeight}, 'wdth' {fontWidth},
+          'CTGR' {fontContrast}"
+          style:font-style={fontItalic ? "italic" : ""}
+          style:text-decoration={fontUnderline ? "underline" : ""}
+          style:font-variant={fontSmallCaps ? "small-caps" : ""}
+        >
+        {#each result as output}
+            {output}
+            <hr />
+          {/each}
+        </div>
+      </details>
     {/each}
-  </div> -->
+  </div>
 </main>
 
 <style>
-  /* @import url("https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Serif&family=Open+Sans&family=Arimo"); */
+  @import url("http://fonts.cdnfonts.com/css/times-new-roman");
+  @import url("http://fonts.cdnfonts.com/css/arial");
 
   @font-face {
     font-family: "Last Resort";
@@ -226,6 +318,28 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
     font-family: "Noto Serif Display";
     src: url("/fonts/NotoSerifDisplay-VF.ttf") format("truetype-variations");
   }
+  @font-face {
+    font-family: "Noto Sans";
+    src: url("/fonts/NotoSans-Italic-VF.ttf") format("truetype-variations");
+    font-style: italic;
+  }
+  @font-face {
+    font-family: "Noto Serif";
+    src: url("/fonts/NotoSerif-Italic-VF.ttf") format("truetype-variations");
+    font-style: italic;
+  }
+  @font-face {
+    font-family: "Noto Sans Display";
+    src: url("/fonts/NotoSansDisplay-Italic-VF.ttf")
+      format("truetype-variations");
+    font-style: italic;
+  }
+  @font-face {
+    font-family: "Noto Serif Display";
+    src: url("/fonts/NotoSerifDisplay-Italic-VF.ttf")
+      format("truetype-variations");
+    font-style: italic;
+  }
 
   :root {
     font-family: "Noto Sans";
@@ -233,23 +347,86 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
 
   main {
     display: flex;
+    flex-direction: column;
   }
 
-  #orthography-options > form {
+  #options-bar {
+    position: sticky;
+    inset-block-start: 8px;
+  }
+  #options-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .options {
+    position: relative;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    border: 1px black solid;
+    padding: 8px;
+  }
+
+  #custom-text {
+    position: relative;
+    display: flex;
+    inline-size: auto;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #custom-text > textarea {
+    inline-size: 100%;
+  }
+  /* #font-options {
+    inset-inline-end: 8px;
+  } */
+  .options > form {
     display: flex;
   }
 
-  #orthography-options > form > label {
-    display: flex;
-    white-space: nowrap;
+  .options > form.orthography-option {
+    flex-direction: row;
+    border-block-end: 1px black solid;
+    font-size: 18pt;
   }
 
+  .options > form.font-options {
+    flex-direction: column;
+  }
+
+  .options > form.font-options > label {
+    display: flex;
+    flex-direction: column;
+  }
+
+  input[type="radio"] {
+    appearance: none;
+    margin: 0;
+    block-size: 0px;
+    inline-size: 0px;
+  }
+
+  input[type="radio"] + label {
+    text-align: center;
+    min-inline-size: 24px;
+    border-radius: 4pt;
+  }
+  input[type="radio"]:checked + * {
+    background-color: lightblue;
+  }
+  #output {
+    /* block-size: 100vh; */
+    /* max-inline-size: 100vw; */
+    overflow: scroll;
+    /* display: grid;
+    grid-template-columns: repeat(6, auto); */
+  }
   .results {
     white-space: pre-wrap;
     margin-inline-start: 8px;
-  }
-
-  .sans {
-    font-family: "Noto Sans", "Last Resort";
+    inline-size: fit-content;
   }
 </style>
