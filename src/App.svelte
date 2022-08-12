@@ -442,27 +442,23 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." Kâ€™utâ€
     flex-direction: column;
   }
 
-  input[type="radio"], input[type="checkbox"] {
+  input[type="radio"] {
     appearance: none;
     margin: 0;
     block-size: 0px;
     inline-size: 0px;
   }
 
-  input[type="radio"] + label, input[type="checkbox"] + label {
+  input[type="radio"] + label {
     text-align: center;
     min-inline-size: 24px;
     border-radius: 4pt;
   }
-  input[type="radio"]:checked + *, input[type="checkbox"] + * {
+  input[type="radio"]:checked + * {
     background-color: lightblue;
   }
   #output {
-    /* block-size: 100vh; */
-    /* max-inline-size: 100vw; */
     overflow: scroll;
-    /* display: grid;
-    grid-template-columns: repeat(6, auto); */
   }
   .results {
     white-space: pre-wrap;
