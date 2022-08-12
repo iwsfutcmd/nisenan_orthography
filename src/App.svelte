@@ -20,6 +20,8 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
 
   let customText = "Nisenaan";
 
+  let noCaps = false;
+
   type OrthographyOption = [
     Array<string | RegExp>,
     { [key: string]: Array<string> }
@@ -38,13 +40,15 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
       "t́": ["t́", "T́"],
       "ŧ": ["ŧ", "Ŧ"],
       "ƭ": ["ƭ", "Ƭ"],
-      "ṭ": ["ṭ", "Ṭ"]
+      "ṭ": ["ṭ", "Ṭ"],
+      "ʇ": ["ʇ", "Ʇ"]
     }],
     "k’": [["k’", "K’"], {
       "ḱ": ["ḱ", "Ḱ"],
       "ꝁ": ["ꝁ", "Ꝁ"],
       "ƙ": ["ƙ", "Ƙ"],
       "ḳ": ["ḳ", "Ḳ"],
+      "ʞ": ["ʞ", "Ʞ"],
     }],
     "c": [["c", "C"], {
       "ts": ["ts", "Ts"]
@@ -57,7 +61,8 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
       "ts’": ["ts’", "Ts’"]
     }],
     "y": [["y", "Y"], {
-      "ʉ": ["ʉ", "Ʉ"]
+      "ʉ": ["ʉ", "Ʉ"],
+      "ɨ": ["ɨ", "Ɨ"]
     }],
     "b": [["b", "B"], {
       "ƀ": ["ƀ", "Ƀ"],
@@ -105,6 +110,18 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
     "y",
   ];
 
+  const keyDiff = keyOrder.filter(
+    (x) => !Object.keys(orthographyOptions).includes(x)
+  );
+  const keyDiff2 = Object.keys(orthographyOptions).filter(
+    (x) => !keyOrder.includes(x)
+  );
+  console.assert(
+    keyDiff2.length === 0 && keyDiff.length === 0,
+    keyDiff,
+    keyDiff2
+  );
+
   const complexKeys = ["p’", "t’", "k’", "c’", "š", "ë", "’"];
 
   const fonts = [
@@ -150,7 +167,8 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
 
   const transliterate = (
     baseWords: string[],
-    currentOrthography: Array<[string, string]>
+    currentOrthography: Array<[string, string]>,
+    noCaps: boolean
   ) =>
     baseWords.map((baseWord) => {
       [...currentOrthography].forEach(([inputKey, outputKey]) => {
@@ -162,7 +180,7 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
           });
         }
       });
-      return baseWord;
+      return noCaps ? baseWord.toLowerCase() : baseWord;
     });
 
   let result: string[] = [];
@@ -176,11 +194,18 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
   let shiftPressed = false;
 
   $: {
-    result = transliterate([customText, ...baseWords], currentOrthography);
+    result = transliterate([customText, ...baseWords], currentOrthography, noCaps);
   }
 </script>
 
-<svelte:window on:keydown={e => {if (e.key === "Shift") shiftPressed = true}} on:keyup={e => {if (e.key === "Shift") shiftPressed = false}}/>
+<svelte:window
+  on:keydown={(e) => {
+    if (e.key === "Shift") shiftPressed = true;
+  }}
+  on:keyup={(e) => {
+    if (e.key === "Shift") shiftPressed = false;
+  }}
+/>
 
 <main>
   <div id="options-bar">
@@ -216,6 +241,15 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
             {/each}
           </form>
         {/each}
+        <form class="orthography-option">
+          <input
+            type="checkbox"
+            bind:checked={noCaps}
+            name="all-caps"
+            id="all-caps"
+          />
+          <label for="all-caps">{noCaps ? "abc" : "Abc"}</label>
+        </form>
       </div>
     {/if}
     {#if menusOpen.includes("customText")}
@@ -223,10 +257,16 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
         <textarea id="custom-text-area" bind:value={customText} />
         <div>
           {#each complexKeys as key}
-            <button on:click={() => {customText = customText + (shiftPressed ? key.toUpperCase() : key); document.getElementById("custom-text-area").focus()}}>
+            <button
+              on:click={() => {
+                customText =
+                  customText + (shiftPressed ? key.toUpperCase() : key);
+                document.getElementById("custom-text-area").focus();
+              }}
+            >
               {shiftPressed ? key.toUpperCase() : key}
             </button>
-            {/each}
+          {/each}
         </div>
       </div>
     {/if}
@@ -284,7 +324,7 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
           style:text-decoration={fontUnderline ? "underline" : ""}
           style:font-variant={fontSmallCaps ? "small-caps" : ""}
         >
-        {#each result as output}
+          {#each result as output}
             {output}
             <hr />
           {/each}
@@ -402,19 +442,19 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
     flex-direction: column;
   }
 
-  input[type="radio"] {
+  input[type="radio"], input[type="checkbox"] {
     appearance: none;
     margin: 0;
     block-size: 0px;
     inline-size: 0px;
   }
 
-  input[type="radio"] + label {
+  input[type="radio"] + label, input[type="checkbox"] + label {
     text-align: center;
     min-inline-size: 24px;
     border-radius: 4pt;
   }
-  input[type="radio"]:checked + * {
+  input[type="radio"]:checked + *, input[type="checkbox"] + * {
     background-color: lightblue;
   }
   #output {
