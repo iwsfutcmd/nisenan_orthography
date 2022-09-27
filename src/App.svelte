@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { text } from "svelte/internal";
-  import { slide, fly } from "svelte/transition";
+  import { slide } from "svelte/transition";
 
   const baseWords: string[] = [
     "Nišenaan",
@@ -194,7 +193,11 @@ Hace haj "Hode? Hode?" hamukum. "Hode mym sam?" "Myym da hodo taji sa." K’ut�
   let shiftPressed = false;
 
   $: {
-    result = transliterate([customText, ...baseWords], currentOrthography, noCaps);
+    result = transliterate(
+      [customText, ...baseWords],
+      currentOrthography,
+      noCaps
+    );
   }
 </script>
 
